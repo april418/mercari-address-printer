@@ -1,0 +1,117 @@
+/* 縦書き部分 */
+.writing-mode-vertical-rl {
+  writing-mode: vertical-rl;
+  text-orientation: mixed;
+}
+
+/* 縦中横書き部分 */
+.text-upright {
+  text-combine-upright: all;
+}
+
+/* 印刷部 */
+.print-section {
+  /* 印刷時以外は非表示 */
+  display: none;
+}
+
+/* はがき(印刷部) */
+.postcard {
+  width: 100%;
+  padding: 12% 8%;
+  /* 日本語を途中で改行させない */
+  word-break: keep-all;
+}
+
+/* 郵便番号 */
+.postal-code {
+  display: flex;
+  justify-content: flex-end;
+  height: 10%;
+  font-size: 3em;
+  letter-spacing: 0.7em;
+}
+
+/* 郵便番号以外 */
+.name-address-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  height: 90%;
+}
+
+/* 住所 */
+.address {
+  align-self: flex-start;
+  font-size: 2em;
+}
+
+/* 宛名 */
+.name {
+  align-self: center;
+  font-size: 5em;
+}
+
+/* 注意書き */
+.notes {
+  align-self: flex-end;
+  font-size: 2em;
+  color: red;
+}
+
+/* 自分の郵便番号以外 */
+.your-name-address-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  height: 90%;
+}
+
+/* 自分の郵便番号 */
+.your-postal-code {
+  display: flex;
+  justify-content: flex-start;
+  height: 10%;
+  font-size: 2em;
+  letter-spacing: 0.5em;
+}
+
+/* 自分の住所 */
+.your-address {
+  align-self: flex-end;
+  font-size: 2em;
+}
+
+/* 自分の氏名 */
+.your-name {
+  align-self: flex-end;
+  font-size: 3em;
+}
+
+/* 印刷時のサイズ指定 */
+@page {
+  /* ヘッダーとフッターを消す(Chrome限定？) */
+  margin: 0;
+}
+
+/* 印刷時のみ働くスタイル指定、印刷時のスタイルで上書きできるように最後尾定義 */
+@media print {
+  .form-section {
+    /* 入力フォーム部分を非表示 */
+    display: none;
+  }
+
+  .print-section {
+    /* 印刷部を表示 */
+    display: initial;
+  }
+
+  .postcard {
+    width: 100vw;
+    height: 100vh;
+    /* 印刷部を宛先ごとに強制改ページ */
+    page-break-after: always;
+  }
+}

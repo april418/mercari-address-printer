@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://unpkg.com/vue@next/dist/vue.global.js"></script>
+
+  <link href="https://unpkg.com/tailwindcss@^2/dist/tailwind.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="index.css">
+
+  <title>Mercari Address Printer - メルカリ宛名印刷ツール</title>
+</head>
+
+<body class="bg-gray-100">
+  <div id="app">
+    <div class="container mx-auto">
+      <div class="flex flex-col flex-wrap space-y-6">
+        <section class="form-section flex flex-col flex-wrap space-y-4">
+          <h1 class="title">入力フォーム</h1>
+          <h2 class="subtitle">必要項目を入力してください。複数件印刷する場合は「印刷ページを追加する」ボタンからページを追加してください。</h2>
+          <input
+            class="appearance-none border border-transparent w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-md rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+            type="text" placeholder="札幌 太郎" v-model="yourName">
+          <input
+            class="appearance-none border border-transparent w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-md rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+            type="text" placeholder="〒060-0042" v-model="yourPostalCode">
+          <input
+            class="appearance-none border border-transparent w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-md rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+            type="text" placeholder="北海道 札幌市中央区 大通西1 テレビ塔" v-model="yourAddress">
+          <div class="flex flex-wrap space-x-4">
+            <button
+              class="appearance-none bg-blue-500 text-white text-base font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none"
+              @click="onClickSaveYourAddress">保存する</button>
+            <button
+              class="appearance-none bg-red-500 text-white text-base font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-red-600 focus:outline-none"
+              @click="onClickRemoveYourAddress" v-if="hasCache">削除する</button>
+          </div>
+          <select
+            class="appearance-none border border-transparent w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-md rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+            v-model="selectedPostcard" @change="onChangeSelectPostcard">
+            <option disabled value="">サイズを選択してください</option>
+            <option v-for="(size, key) in postcardSizes" :value="key">{{ size.label }}</option>
+          </select>
+          <label class="checkbox" for="renderNotes">
+            <input type="checkbox" name="renderNotes" v-model="renderNotes">
+            注意書きを印字する
+          </label>
+          <input
+            class="appearance-none border border-transparent w-full py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-md rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+            type="text" v-model="notes" v-if="renderNotes">
+          <div class="flex flex-wrap flex-col space-y-2">
+            <div class="flex flex-wrap space-x-2" v-for="(postcard, index) in postcards" :key="postcard.key">
+              <textarea
+                class="flex-grow appearance-none border border-transparent py-2 px-4 bg-white text-gray-700 placeholder-gray-400 shadow-md rounded-lg text-base focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+                rows="4" placeholder="〒060-0042
+北海道 札幌市中央区 大通西1
+テレビ塔
+札幌 太郎 様" @input="onInputPostcard($event, index)">{{ postcard.textSource }}</textarea>
+              <button
+                class="appearance-none bg-red-500 text-white text-base font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-red-600 focus:outline-none"
+                @click="onClickRemovePostcard($event, index)" v-if="isNotSingle">削除</button>
+            </div>
+          </div>
+          <div class="flex flex-wrap space-x-4">
+            <button
+              class="appearance-none bg-gray-100 text-gray-700 text-base font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-gray-200 focus:outline-none"
+              @click="onClickAddPostcard">印刷ページを追加する</button>
+            <button
+              class="appearance-none bg-blue-500 text-white text-base font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 focus:outline-none"
+              @click="onClickPrintButton">印刷する</button>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <section class="print-section">
+      <div class="postcard" v-for="postcard in postcards" :key="postcard.key">
+        <div class="postal-code">{{ postcard.postalCode }}</div>
+        <div class="name-address-container">
+          <div class="address writing-mode-vertical-rl" v-html="postcard.address"></div>
+          <div class="name writing-mode-vertical-rl">{{ postcard.name }}</div>
+          <div class="notes writing-mode-vertical-rl" v-if="renderNotes">{{ notes }}</div>
+          <div class="notes" v-if="!renderNotes">　</div>
+        </div>
+      </div>
+      <div class="postcard" v-for="postcard in postcards" :key="postcard.key">
+        <div class="your-name-address-container">
+          <div class="your-address writing-mode-vertical-rl" v-html="convertedYourAddress"></div>
+          <div class="your-name writing-mode-vertical-rl">{{ yourName }}</div>
+        </div>
+        <div class="your-postal-code">{{ convertedYourPostalCode }}</div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const postcardSizes = {
+      MiniLetter: { label: 'ミニレター(郵便書簡)', width: 92, height: 164 },
+      No3: { label: '封筒 - 長形3号', width: 120, height: 235 },
+      No4: { label: '封筒 - 長形4号', width: 90, height: 205 },
+      No5: { label: '封筒 - 長形5号', width: 90, height: 185 },
+    }
+    const initialPostcard = {
+      key: Symbol(),
+      textSource: '',
+      postalCode: '',
+      address: '',
+      name: '',
+    }
+    const app = Vue.createApp({
+      data() {
+        return {
+          hasCache: false,
+          selectedPostcard: '',
+          yourName: '',
+          yourAddress: '',
+          yourPostalCode: '',
+          renderNotes: true,
+          notes: '折曲・水濡厳禁',
+          postcards: [Object.assign({}, initialPostcard)],
+          postcardStyles: {},
+          postcardSizes,
+        }
+      },
+      methods: {
+        addPostcard() {
+          this.postcards.push(Object.assign({}, initialPostcard))
+        },
+        convertAddress(address) {
+          return address.replace(/[Ａ-Ｚａ-ｚ０-９]/g, function (s) {
+            return String.fromCharCode(s.charCodeAt(0) - 0xFEE0)
+          }).replace(/([a-zA-Z]|\d{1,5})/g, '<span class="text-upright">$1</span>')
+        },
+        convertPostalCode(postalCode) {
+          return postalCode.replace(/.?(\d{3}).?(\d{4})/, '$1$2')
+        },
+        loadCache() {
+          this.yourName = window.localStorage.getItem('yourName') ?? ''
+          this.yourAddress = window.localStorage.getItem('yourAddress') ?? ''
+          this.yourPostalCode = window.localStorage.getItem('yourPostalCode') ?? ''
+          this.hasCache = window.localStorage.length > 0
+        },
+        onChangeSelectPostcard(event) {
+          const currentStyle = document.querySelector('#postcard-styles')
+          if (currentStyle) currentStyle.remove()
+
+          const selected = event.target.value
+          const size = this.postcardSizes[selected]
+          const style = `/* 印刷時のサイズ指定 */
+@page {
+  size: ${size.width}mm ${size.height}mm;
+}
+
+/* 印刷時のみ働くスタイル指定 */
+@media print {
+  /* Chrome縮尺バグ対策 */
+  body {
+    width: ${size.width}mm;
+    height: ${size.height}mm;
+  }
+}
+
+/* はがき(印刷部) */
+.postcard {
+  aspect-ratio: ${size.width} / ${size.height};
+}`
+          const uri = `data:text/css;base64,${btoa(unescape(encodeURIComponent(style)))}`
+          const link = document.createElement('link')
+
+          link.setAttribute('id', 'postcard-styles')
+          link.setAttribute('rel', 'stylesheet')
+          link.setAttribute('href', uri)
+
+          document.querySelector('head').append(link)
+        },
+        onInputPostcard(event, index) {
+          const postcard = this.postcards[index]
+          postcard.textSource = event.target.value
+
+          const sentences = postcard.textSource.split(/\n/)
+          if (sentences.length !== 3 && sentences.length !== 4) {
+            postcard.postalCode = ''
+            postcard.address = ''
+            postcard.name = ''
+            return
+          }
+
+          postcard.postalCode = this.convertPostalCode(sentences[0])
+          postcard.address = this.convertAddress(sentences.slice(1, sentences.length - 1).join(' '))
+          postcard.name = sentences[sentences.length - 1]
+        },
+        onClickSaveYourAddress(event) {
+          if (!this.yourName && !this.yourAddress && !this.yourPostalCode) {
+            alert('入力されていないため保存できませんでした')
+            return
+          }
+
+          this.yourName && window.localStorage.setItem('yourName', this.yourName)
+          this.yourAddress && window.localStorage.setItem('yourAddress', this.yourAddress)
+          this.yourPostalCode && window.localStorage.setItem('yourPostalCode', this.yourPostalCode)
+          this.loadCache()
+          alert('保存しました')
+        },
+        onClickRemoveYourAddress(event) {
+          window.localStorage.clear()
+          this.loadCache()
+          alert('削除しました')
+        },
+        onClickRemovePostcard(event, index) {
+          this.postcards.splice(index, 1)
+        },
+        onClickAddPostcard(event) {
+          this.addPostcard()
+        },
+        onClickPrintButton(event) {
+          window.print()
+        }
+      },
+      computed: {
+        isNotSingle() {
+          return this.postcards.length > 1
+        },
+        convertedYourAddress() {
+          return this.convertAddress(this.yourAddress)
+        },
+        convertedYourPostalCode() {
+          return this.convertPostalCode(this.yourPostalCode)
+        },
+      },
+      mounted() {
+        this.loadCache()
+      }
+    })
+    app.mount('#app')
+  </script>
+</body>
+
+</html>
