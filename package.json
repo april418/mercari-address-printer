@@ -1,0 +1,22 @@
+{
+  "name": "mercari-address-printer",
+  "version": "1.0.0",
+  "description": "Print the address based on the Mercari transaction information.",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/april418/mercari-address-printer.git"
+  },
+  "keywords": [
+    "mercari"
+  ],
+  "author": "april418",
+  "license": "SEE LICENSE IN LICENSE.md",
+  "bugs": {
+    "url": "https://github.com/april418/mercari-address-printer/issues"
+  },
+  "homepage": "https://github.com/april418/mercari-address-printer#readme"
+}
