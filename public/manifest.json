@@ -1,0 +1,33 @@
+{
+  "manifest_version": 2,
+  "name": "Mercari Address Printer",
+  "description": "Chrome Extention that print the address of a Mercari buyer.",
+  "version": "1.0.0",
+  "options_page": "options.html",
+  "browser_action": {
+    "default_icon": "icon.png",
+    "default_title": "Mercari Address Printer",
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://jp.mercari.com/*"
+      ],
+      "js": [
+        "js/mercari_content_script.js"
+      ]
+    }
+  ],
+  "background": {
+    "scripts": [
+      "js/background.js"
+    ],
+    "persistent": false
+  },
+  "permissions": [
+    "tabs",
+    "storage",
+    "contextMenus"
+  ]
+}

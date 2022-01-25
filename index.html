@@ -78,22 +78,24 @@
     </div>
 
     <section class="print-section">
-      <div class="postcard" v-for="postcard in postcards" :key="postcard.key">
-        <div class="postal-code">{{ postcard.postalCode }}</div>
-        <div class="name-address-container">
-          <div class="address writing-mode-vertical-rl" v-html="postcard.address"></div>
-          <div class="name writing-mode-vertical-rl">{{ postcard.name }}</div>
-          <div class="notes writing-mode-vertical-rl" v-if="renderNotes">{{ notes }}</div>
-          <div class="notes" v-if="!renderNotes">　</div>
+      <template v-for="postcard in postcards" :key="postcard.key">
+        <div class="postcard">
+          <div class="postal-code">{{ postcard.postalCode }}</div>
+          <div class="name-address-container">
+            <div class="address writing-mode-vertical-rl" v-html="postcard.address"></div>
+            <div class="name writing-mode-vertical-rl">{{ postcard.name }}</div>
+            <div class="notes writing-mode-vertical-rl" v-if="renderNotes">{{ notes }}</div>
+            <div class="notes" v-if="!renderNotes">　</div>
+          </div>
         </div>
-      </div>
-      <div class="postcard" v-for="postcard in postcards" :key="postcard.key">
-        <div class="your-name-address-container">
-          <div class="your-address writing-mode-vertical-rl" v-html="convertedYourAddress"></div>
-          <div class="your-name writing-mode-vertical-rl">{{ yourName }}</div>
+        <div class="postcard">
+          <div class="your-name-address-container">
+            <div class="your-address writing-mode-vertical-rl" v-html="convertedYourAddress"></div>
+            <div class="your-name writing-mode-vertical-rl">{{ yourName }}</div>
+          </div>
+          <div class="your-postal-code">{{ convertedYourPostalCode }}</div>
         </div>
-        <div class="your-postal-code">{{ convertedYourPostalCode }}</div>
-      </div>
+      </template>
     </section>
   </div>
 

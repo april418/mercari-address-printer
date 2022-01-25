@@ -1,0 +1,90 @@
+/* 印刷時のサイズ指定 */
+@page {
+  /* ヘッダーとフッターを消す(Chrome限定？) */
+  margin: 0;
+}
+
+html {
+  font-size: 10px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* はがき(印刷部) */
+.postcard {
+  /* width: 100%; */
+  padding: 12% 8%;
+  /* 日本語を途中で改行させない */
+  word-break: keep-all;
+  page-break-after: always;
+}
+
+/* 郵便番号 */
+.delivery-postalcode {
+  display: flex;
+  justify-content: flex-end;
+  height: 10%;
+  font-size: 3em;
+  letter-spacing: 0.7em;
+}
+
+/* 郵便番号以外 */
+.delivery-name-address-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row-reverse;
+  justify-content: space-between;
+  height: 90%;
+}
+
+/* 住所 */
+.delivery-address {
+  align-self: flex-start;
+  font-size: 2em;
+}
+
+/* 宛名 */
+.delivery-name {
+  align-self: center;
+  font-size: 5em;
+}
+
+/* 注意書き */
+.notes {
+  align-self: flex-end;
+  font-size: 2em;
+  color: red;
+}
+
+/* 自分の郵便番号以外 */
+.shipper-name-address-container {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  height: 90%;
+}
+
+/* 自分の郵便番号 */
+.shipper-postalcode {
+  display: flex;
+  justify-content: flex-start;
+  height: 10%;
+  font-size: 2em;
+  letter-spacing: 0.6em;
+}
+
+/* 自分の住所 */
+.shipper-address {
+  align-self: flex-end;
+  font-size: 2em;
+}
+
+/* 自分の氏名 */
+.shipper-name {
+  align-self: flex-end;
+  font-size: 3em;
+}
